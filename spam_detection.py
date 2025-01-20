@@ -8,41 +8,58 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 from wordcloud import WordCloud
 
-# Load the dataset (Make sure the file path is correct)
-df = pd.read_csv(r'E:\Workspace\ml\new\spam.csv', encoding='latin-1')
+# Data Loading and Initial Cleaning
+print("Loading and cleaning data...")
+df = pd.read_csv('spam.csv', encoding='latin-1')
+
+# Document data cleaning steps
+print(f"Initial dataset size: {len(df)}")
+print(f"Number of null values:\n{df.isnull().sum()}")
 
 # Preprocess the data
-df = df[['v1', 'v2']]
+df = df[['v1', 'v2']].copy()  # Only keep relevant columns
 df.columns = ['label', 'message']
+print(f"Cleaned dataset size: {len(df)}")
 
 # Convert labels to binary values (ham = 0, spam = 1)
 df['label'] = df['label'].map({'ham': 0, 'spam': 1})
 
-# Split the data into train and test sets
-X_train, X_test, y_train, y_test = train_test_split(df['message'], df['label'], test_size=0.2, random_state=42)
+# Print class distribution
+print("\nClass distribution:")
+print(df['label'].value_counts(normalize=True) * 100)
 
-# Convert text to feature vectors using CountVectorizer
+# Split the data
+X_train, X_test, y_train, y_test = train_test_split(df['message'], df['label'], 
+                                                    test_size=0.2, random_state=42)
+
+# Feature extraction
+print("\nExtracting features...")
 vectorizer = CountVectorizer(stop_words='english')
 X_train_vectorized = vectorizer.fit_transform(X_train)
 X_test_vectorized = vectorizer.transform(X_test)
 
-# Build the Naive Bayes classifier
+# Model training
+print("Training model...")
 classifier = MultinomialNB()
 classifier.fit(X_train_vectorized, y_train)
 
-# Predict on the test set
+# Model evaluation
+print("\nEvaluating model...")
 y_pred = classifier.predict(X_test_vectorized)
 
-# Evaluate the model
-accuracy = accuracy_score(y_test, y_pred)
-print(f'Accuracy: {accuracy * 100:.2f}%')
-
-# Confusion matrix and classification report
+# Print all evaluation metrics
+print("\nModel Performance Metrics:")
+print(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}")
+print("\nConfusion Matrix:")
 print(confusion_matrix(y_test, y_pred))
+print("\nDetailed Classification Report:")
 print(classification_report(y_test, y_pred))
 
-# Word cloud visualization
-wordcloud = WordCloud(width=800, height=400, background_color='white').generate(' '.join(df['message']))
+# Visualization
+plt.figure(figsize=(10, 6))
+wordcloud = WordCloud(width=800, height=400, 
+                     background_color='white').generate(' '.join(df['message']))
 plt.imshow(wordcloud, interpolation='bilinear')
 plt.axis('off')
+plt.title('Most Common Words in Messages')
 plt.show()
