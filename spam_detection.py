@@ -49,7 +49,7 @@ y_pred = classifier.predict(X_test_vectorized)
 
 # Print all evaluation metrics
 print("\nModel Performance Metrics:")
-print(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}")
+print(f"Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
 print("\nConfusion Matrix:")
 print(confusion_matrix(y_test, y_pred))
 print("\nDetailed Classification Report:")
